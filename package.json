@@ -1,0 +1,12 @@
+{
+  "name": "xau-u7-ai-lab",
+  "version": "1.0.0",
+  "description": "XAU-U7 AI Lab",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
