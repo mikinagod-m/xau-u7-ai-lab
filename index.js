@@ -1,13 +1,8 @@
 const express = require("express");
-const OpenAI = require("openai");
 const axios = require("axios");
 
 const app = express();
 app.use(express.json());
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
 
 app.get("/", (req, res) => {
   res.json({
@@ -28,41 +23,35 @@ app.post("/webhook", async (req, res) => {
 
     const signal = req.body;
 
-    const response = await openai.responses.create({
-      model: "gpt-5",
-      input: `
-Grade this XAUUSD setup.
+    const emoji =
+      signal.direction === "LONG"
+        ? "🟢"
+        : "🔴";
 
-${JSON.stringify(signal)}
+    const telegramMessage =
+`${emoji} XAU-U8 ${signal.direction}
 
-Return:
-- Grade (A+,A,B,C)
-- Confidence %
-- Decision (TRADE / WAIT)
-- One sentence reason
-`
-    });
-
-    const analysis = response.output_text;
+🎯 Entry: ${signal.entry}
+🛑 SL: ${signal.sl}
+💰 TP: ${signal.tp}
+⚖️ RR: ${signal.rr}`;
 
     await axios.post(
       `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`,
       {
         chat_id: process.env.LAB_TELEGRAM_CHAT_ID,
-        text:
-`🧪 XAU-U7 AI LAB
-
-${analysis}`
+        text: telegramMessage
       }
     );
 
     res.json({
       success: true,
-      analysis
+      signal
     });
 
   } catch (err) {
     console.error(err);
+
     res.status(500).json({
       error: err.message
     });
